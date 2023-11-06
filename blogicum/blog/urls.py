@@ -5,8 +5,21 @@ from . import views
 app_name = 'blog'
 
 urlpatterns = [
-    path('', views.IndexListView.as_view(), name='index'),
-    path('posts/create/', views.PostCreateView.as_view(), name='create_post'),
+    path(
+        '',
+        views.IndexListView.as_view(),
+        name='index'
+    ),
+    path(
+        'auth/registration/',
+        views.UserCreateView.as_view(),
+        name='registration',
+    ),
+    path(
+        'posts/create/',
+        views.PostCreateView.as_view(),
+        name='create_post'
+    ),
     path(
         'posts/<int:post_id>/comment/',
         views.CommentCreateView.as_view(),

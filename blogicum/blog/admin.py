@@ -1,7 +1,8 @@
 from django.contrib import admin
 from django.contrib.auth.models import Group
+from django.utils.safestring import mark_safe
 
-from .models import Category, Location, Post
+from .models import Category, Location, Post, Comment
 
 
 class PostInline(admin.StackedInline):
@@ -54,6 +55,22 @@ class PostAdmin(admin.ModelAdmin):
     search_fields = ('title',)
     list_filter = ('category',)
     list_display_links = ('title',)
+
+    readonly_fields = ["photo"]
+
+    def photo(self, obj):
+        if obj.image:
+            return mark_safe(
+                f'<img src={obj.image.url} width="80" height="60">'
+            )
+        else:
+            return "Без фото"
+
+
+@admin.register(Comment)
+class CommentAdmin(admin.ModelAdmin):
+    list_display = ('text', 'post', 'author', 'created_at')
+    list_filter = ('author',)
 
 
 admin.site.unregister(Group)
