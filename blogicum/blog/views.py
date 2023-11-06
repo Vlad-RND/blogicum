@@ -1,12 +1,10 @@
-from datetime import datetime
-
 from django.contrib.auth.models import User
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.forms import UserCreationForm
 from django.urls import reverse_lazy
 from django.shortcuts import get_object_or_404, reverse
 from django.views.generic import (
-    ListView, UpdateView, CreateView, DeleteView, DetailView
+    ListView, UpdateView, CreateView, DeleteView
 )
 
 from blog.models import Category, Post
@@ -86,10 +84,12 @@ class CategoryListView(PostPaginateMixin, ListView):
         return post_filter_order(post_annotate()).filter(category=category_id)
 
 
-class PostDetailView(PostPaginateMixin, DetailView):
-
+class PostDetailView(PostPaginateMixin, ListView):
     template_name = 'blog/detail.html'
     pk_url_kwarg = 'post_id'
+
+    def get_queryset(self):
+        return get_post_by_id(self).comments.all()
 
     def get_object(self):
         post = get_post_by_id(self)
@@ -98,16 +98,14 @@ class PostDetailView(PostPaginateMixin, DetailView):
             return post
 
         return get_object_or_404(
-            Post, pk=self.kwargs[self.pk_url_kwarg],
-            is_published=True,
-            category__is_published=True,
-            pub_date__lte=datetime.now(),
+            post_filter_order(Post.objects),
+            pk=self.kwargs[self.pk_url_kwarg],
         )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['form'] = CommentForm()
-        context['comments'] = get_post_by_id(self).comments.all()
+        context['post'] = self.get_object()
         return context
 
 
