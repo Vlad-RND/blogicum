@@ -35,7 +35,7 @@ class Category(PublishedCreatedModel):
         ' разрешены символы латиницы, цифры, дефис и подчёркивание.',
     )
 
-    class Meta:
+    class Meta(PublishedCreatedModel.Meta):
         verbose_name = 'категория'
         verbose_name_plural = 'Категории'
 
@@ -46,7 +46,7 @@ class Category(PublishedCreatedModel):
 class Location(PublishedCreatedModel):
     name = models.CharField('Название места', max_length=TITLE_LENGTH)
 
-    class Meta:
+    class Meta(PublishedCreatedModel.Meta):
         verbose_name = 'местоположение'
         verbose_name_plural = 'Местоположения'
 
@@ -104,7 +104,7 @@ class Comment(CreatedAtModel):
         verbose_name='Автор публикации',
     )
 
-    class Meta:
+    class Meta(CreatedAtModel.Meta):
         verbose_name = 'комментарий'
         verbose_name_plural = 'Комментарии'
         default_related_name = 'comments'

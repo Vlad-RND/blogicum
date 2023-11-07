@@ -1,5 +1,5 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.shortcuts import get_object_or_404, reverse, redirect
+from django.shortcuts import reverse, redirect
 
 from blog.models import Comment, Post
 from .forms import PostForm, CommentForm
@@ -9,19 +9,7 @@ from .constants import POSTS_LIMIT
 class IsAuthorMixin(UserPassesTestMixin):
 
     def test_func(self):
-        author = self.request.user
-
-        if 'comment_id' in self.kwargs:
-            author = get_object_or_404(
-                Comment, pk=self.kwargs['comment_id']
-            ).author
-        elif 'post_id' in self.kwargs:
-            author = get_object_or_404(Post, pk=self.kwargs['post_id']).author
-
-        if self.request.user == author:
-            return True
-        else:
-            return False
+        return self.get_object().author == self.request.user
 
 
 class PostMixin(IsAuthorMixin, LoginRequiredMixin):
@@ -30,22 +18,23 @@ class PostMixin(IsAuthorMixin, LoginRequiredMixin):
     template_name = 'blog/create.html'
 
     def handle_no_permission(self):
-        if self.request.user.is_authenticated:
-            return redirect('blog:post_detail', self.kwargs['post_id'])
-        return super().handle_no_permission()
+        return redirect('blog:post_detail', self.kwargs['post_id'])
 
     def get_success_url(self):
         return reverse('blog:profile',
                        kwargs={'username': self.object.author})
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = PostForm(instance=self.object)
+        return context
 
 
 class CommentMixin(LoginRequiredMixin):
     model = Comment
     form_class = CommentForm
     template_name = 'blog/comment.html'
-
-    def get_object(self):
-        return get_object_or_404(Comment, pk=self.kwargs['comment_id'])
+    pk_url_kwarg = 'comment_id'
 
     def get_success_url(self):
         return reverse('blog:post_detail',
