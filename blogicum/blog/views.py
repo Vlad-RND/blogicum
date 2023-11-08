@@ -1,7 +1,6 @@
 from django.contrib.auth.models import User
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.forms import UserCreationForm
-from django.db.models import Count
 from django.urls import reverse_lazy
 from django.shortcuts import get_object_or_404, reverse
 from django.views.generic import (
@@ -19,7 +18,7 @@ class IndexListView(ListView):
     model = Post
     paginate_by = POSTS_LIMIT
     template_name = 'blog/index.html'
-    queryset = post_filter_order(post_annotate())
+    queryset = post_filter_order(post_annotate(Post.objects))
 
 
 class ProfileListView(ListView):
@@ -36,11 +35,10 @@ class ProfileListView(ListView):
         return context
 
     def get_queryset(self):
-        posts = self.get_profile().posts.all().annotate(
-            comment_count=Count('comments')).order_by('-pub_date')
+        posts = post_annotate(self.get_profile().posts.all())
 
         if self.get_profile() != self.request.user:
-            return post_filter_order(posts)
+            posts = post_filter_order(posts)
 
         return posts
 
@@ -59,7 +57,6 @@ class ProfileUpdateView(LoginRequiredMixin, UpdateView):
 
 
 class PostUpdateView(PostMixin, UpdateView):
-    pk_url_kwarg = 'post_id'
 
     def get_success_url(self):
         return reverse('blog:post_detail', kwargs={'post_id': self.object.id})
@@ -89,9 +86,7 @@ class CategoryListView(PostPaginateMixin, ListView):
         )
 
     def get_queryset(self):
-        return post_filter_order(
-            self.get_category().posts.annotate(comment_count=Count('comments'))
-        )
+        return post_filter_order(post_annotate(self.get_category().posts))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -129,7 +124,6 @@ class PostDetailView(PostPaginateMixin, ListView):
 
 class PostDeleteView(PostMixin, DeleteView):
     success_url = reverse_lazy('blog:index')
-    pk_url_kwarg = 'post_id'
 
 
 class CommentCreateView(CommentMixin, CreateView):

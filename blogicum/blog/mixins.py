@@ -16,6 +16,7 @@ class PostMixin(IsAuthorMixin, LoginRequiredMixin):
     model = Post
     form_class = PostForm
     template_name = 'blog/create.html'
+    pk_url_kwarg = 'post_id'
 
     def handle_no_permission(self):
         return redirect('blog:post_detail', self.kwargs['post_id'])
