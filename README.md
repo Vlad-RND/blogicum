@@ -5,14 +5,14 @@
 
 ### Используемые библиотеки:
 
-asgiref==3.8.1
-Django==5.0.6
-django-bootstrap5==24.2
-pillow==10.3.0
-python-dotenv==1.0.1
-setuptools==69.2.0
-sqlparse==0.4.4
-tzdata==2024.1
+asgiref==3.8.1,
+Django==5.0.6,
+django-bootstrap5==24.2,
+pillow==10.3.0,
+python-dotenv==1.0.1,
+setuptools==69.2.0,
+sqlparse==0.4.4,
+tzdata==2024.1,
 wheel==0.43.0
 
 ### Как запустить проект:
@@ -40,7 +40,7 @@ source venv/Scripts/activate
 Установить зависимости из файла requirements.txt:
 
 ```
-python3 -m pip install --upgrade pip
+python -m pip install --upgrade pip
 ```
 
 ```
@@ -50,7 +50,7 @@ pip install -r requirements.txt
 Выполнить миграции:
 
 ```
-python3 manage.py migrate
+python manage.py migrate
 ```
 
 Запустить проект:
