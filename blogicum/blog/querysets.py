@@ -10,8 +10,8 @@ def post_annotate(posts):
     ).order_by('-pub_date')
 
 
-def post_filter_order(obj):
-    return obj.filter(
+def post_filter_order(posts):
+    return posts.filter(
         is_published=True,
         category__is_published=True,
         pub_date__lte=timezone.now(),
